@@ -10,13 +10,7 @@ export default async function Home() {
     <div className="p-10">
       <h1 className="text-4xl font-bold">Pantheon Technologies</h1>
 
-      {session ? (
-        <SignOut></SignOut>
-      ) : (
-        <SignIn></SignIn>
-      )}
-
-      <div>Name: {session?.user?.name}</div>
+      <div>Landing</div>
       
 
     </div>
