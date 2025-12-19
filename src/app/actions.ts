@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import Stripe from "stripe"
 
 export async function createProject(formData: FormData) {
 
@@ -44,4 +45,32 @@ export async function deleteProject(formData: FormData) {
     })
 
   revalidatePath("/dashboard")
+}
+
+export async function createSubscription() {
+    const session = await auth()
+    if (!session?.user?.id || !session?.user?.email) {
+        throw new Error("Unauthorized")
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
+
+    // essentially filling out an order form for a subscription
+    const checkoutSession = await stripe.checkout.sessions.create({
+        customer_email: session.user.email,
+        line_items: [
+            {
+                price: process.env.STRIPE_PRICE_ID,
+                quantity: 1,
+            },
+        ],
+        mode: "subscription",
+        success_url: `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/dashboard?success=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/dashboard?canceled=true`,
+        metadata: {
+            userId: session.user.id
+        },
+    })
+
+    return checkoutSession.url
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { deleteProject } from "../actions";
 import SignOut from "@/components/sign-out";
 import NewProjectBtn from "@/components/new-project-btn";
+import SubscriptionBtn from "@/components/subscription-btn";
 
 export default async function Dashbaord() {
   const session = await auth()
@@ -16,7 +17,7 @@ export default async function Dashbaord() {
     orderBy: { createdAt: "desc" },
   });
 
-return (
+  return (
     <div className="p-8 max-w-4xl mx-auto">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-8">
@@ -24,7 +25,10 @@ return (
             <h1 className="text-3xl font-bold text-slate-900">Pantheon Technologies Dashboard</h1>
             <p className="text-slate-500">Welcome back, {session.user.name}</p>
         </div>
-        <SignOut /> 
+        <div className="flex items-center gap-4">
+          <SubscriptionBtn />
+          <SignOut /> 
+        </div>
       </div>
 
       {/* Action Section */}
