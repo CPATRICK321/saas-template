@@ -1,0 +1,42 @@
+name: CI
+
+# Trigger this workflow on push to main or any pull request
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Build
+      env:
+        DATABASE_URL: "postgresql://user:pass@localhost:5432/db"
+        AUTH_SECRET: "dummy_secret_for_build"
+        AUTH_GITHUB_ID: "dummy_github_id"
+        AUTH_GITHUB_SECRET: "dummy_github_secret"
+        AUTH_URL: "http://localhost:3000"
+        AUTH_TRUST_HOST: "true"
+        STRIPE_PUBLIC_KEY: "pk_test_dummy_key"
+        STRIPE_SECRET_KEY: "sk_test_dummy_key"
+        STRIPE_PRICE_ID: "price_dummy_id"
+        STRIPE_WEBHOOK_SECRET: "whsec_dummy_secret"
+      run: npm run build

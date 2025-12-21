@@ -31,6 +31,7 @@ export async function POST(req: Request) {
 
         const subscriptionId = session.subscription as string;
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any
 
         const userId = session.metadata?.userId;
@@ -62,7 +63,10 @@ export async function POST(req: Request) {
     }
 
     if (event.type === "invoice.payment_succeeded") {
-        const subscriptionId = sessionStorage.subscription as string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const invoice = event.data.object as Stripe.Invoice as any;
+        const subscriptionId = invoice.subscription as string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
 
         await prisma.user.update({
