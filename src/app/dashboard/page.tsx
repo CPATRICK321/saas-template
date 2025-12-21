@@ -5,6 +5,7 @@ import { deleteProject } from "../actions";
 import SignOut from "@/components/sign-out";
 import NewProjectBtn from "@/components/new-project-btn";
 import SubscriptionBtn from "@/components/subscription-btn";
+import { checkSubscription } from "@/lib/subscription";
 
 export default async function Dashbaord() {
   const session = await auth()
@@ -17,6 +18,8 @@ export default async function Dashbaord() {
     orderBy: { createdAt: "desc" },
   });
 
+  const isPro = await checkSubscription(session.user.id!)
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
       {/* Header Section */}
@@ -26,7 +29,7 @@ export default async function Dashbaord() {
             <p className="text-slate-500">Welcome back, {session.user.name}</p>
         </div>
         <div className="flex items-center gap-4">
-          <SubscriptionBtn />
+          <SubscriptionBtn isPro={isPro} />
           <SignOut /> 
         </div>
       </div>

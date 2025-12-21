@@ -95,3 +95,28 @@ export async function createSubscription() {
 
     return checkoutSession.url
 }
+
+export async function createCustomerPortal() {
+    const session = await auth()
+    if (!session?.user?.id) {
+        throw new Error("Unauthorized")
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { stripeCustomerId: true },
+    })
+
+    if (!user?.stripeCustomerId) {
+        throw new Error("No Stripe customer ID found")
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
+
+    const portalSession = await stripe.billingPortal.sessions.create({
+        customer: user.stripeCustomerId,
+        return_url: `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/dashboard`,
+    })
+
+    return portalSession.url
+}

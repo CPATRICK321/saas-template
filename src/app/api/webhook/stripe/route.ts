@@ -61,6 +61,19 @@ export async function POST(req: Request) {
         console.log("User upgraded to Pro:", userId, );
     }
 
+    if (event.type === "invoice.payment_succeeded") {
+        const subscriptionId = sessionStorage.subscription as string;
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
+
+        await prisma.user.update({
+            where: { stripeSubscriptionId: subscriptionId },
+            data: {
+                stripePriceId: subscription.items.data[0].price.id,
+                stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+            }
+        });
+    }
+
     return new NextResponse("Received", { status: 200 });
 }
 
