@@ -3,7 +3,10 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { checkSubscription } from "@/lib/subscription"
 import Stripe from "stripe"
+
+const FREE_PROJECT_LIMIT = 1
 
 export async function createProject(formData: FormData) {
 
@@ -11,6 +14,19 @@ export async function createProject(formData: FormData) {
     const session = await auth()
     if (!session?.user?.id) {
         throw new Error("Unauthorized")
+    }
+
+    const isPro = await checkSubscription(session.user.id)
+
+    const projectCount = await prisma.project.count({
+        where: { userId: session.user.id },
+    })
+
+    if (!isPro && projectCount >= FREE_PROJECT_LIMIT) {
+        return {
+            status: "error",
+            message: "Free limit reached. Upgrade to create more.",
+        }
     }
 
     // get form data
@@ -28,6 +44,11 @@ export async function createProject(formData: FormData) {
 
     // purge cached data for the dashboard page
     revalidatePath("/dashboard")
+
+    return { 
+        status: "success", 
+        message: "Project created successfully!"
+    }
 }
 
 

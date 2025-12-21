@@ -2,9 +2,29 @@
 
 import { createProject } from "@/app/actions"
 import { useState } from "react"
+import { toast } from "react-hot-toast"
 
 export default function NewProjectBtn() {
     const [isOpen, setIsOpen] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setIsLoading(true)
+
+        const formData = new FormData(event.currentTarget)
+
+        const result = await createProject(formData)
+
+        if (result?.status === "error") {
+            toast.error(result.message)
+        } else {
+            toast.success(result?.message)
+            setIsOpen(false)
+        }
+
+        setIsLoading(false)
+    }
 
     return (
         <div>
@@ -19,7 +39,7 @@ export default function NewProjectBtn() {
                 <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg mt-2 max-w-md">
                     <h3 className="font-bold mb-2 text-slate-800">Create Project</h3>
                     
-                    <form action={createProject} onSubmit={() => setIsOpen(false)}>
+                    <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <input 
                                 name="name" 
