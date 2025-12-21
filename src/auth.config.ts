@@ -11,26 +11,33 @@ export const authConfig = {
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user
+            const isOnDashboard = nextUrl.pathname.startsWith('/dashboard') || nextUrl.pathname.startsWith('/settings')
+            const isOnSettings = nextUrl.pathname.startsWith('/settings')
+            const isOnAuth = nextUrl.pathname === '/login' || nextUrl.pathname === '/register'
+            const isOnPublic = nextUrl.pathname === '/'
+
             
             if (isLoggedIn) {
-                if (nextUrl.pathname === '/'
-                    || nextUrl.pathname === '/dashboard'
-                    || nextUrl.pathname === '/settings') {
-                    // logged in users are allowed to access these pages
-                    return true
-                } else {
-                    // logged in users should redirect to the dashboard for other pages
+                // logged in users don't need to see auth pages
+                if (isOnAuth) {
                     return Response.redirect(new URL('/dashboard', nextUrl))
                 }
-            }
-            if (nextUrl.pathname === '/'
-                    || nextUrl.pathname === '/login') {
-                    // logged out usedrs are allowed to access these pages
+                
+                if (isOnDashboard || isOnSettings || isOnPublic) {
                     return true
-                } else {
-                    // logged out users should redirect to the login for other pages
-                    return false
+                }
+
+                // logged in users should redirect to dashboard for other pages
+                return Response.redirect(new URL('/dashboard', nextUrl))
             }
+            
+            // Logged out users can access public pages
+            if (isOnAuth || isOnPublic) {
+                return true
+            }
+
+            // everything else is directed to login
+            return false
         }
     },
     providers: [],

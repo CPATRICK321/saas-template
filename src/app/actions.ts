@@ -1,12 +1,53 @@
 "use server"
 
-import { auth } from "@/auth"
+import { auth, signIn } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { checkSubscription } from "@/lib/subscription"
 import Stripe from "stripe"
+import bcrypt from "bcryptjs"
+import { AuthError } from "next-auth"
 
 const FREE_PROJECT_LIMIT = 1
+
+export async function registerUser(formData: FormData) {
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const name = formData.get("name") as string
+
+    if (!email || !password) {
+        return {
+            status: "error",
+            message: "Email and password are required",
+        }
+    }
+
+    const existingUser = await prisma.user.findUnique({
+        where: { email }
+    })
+
+    if (existingUser) {
+        return {
+            status: "error",
+            message: "User already exists",
+        }
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    await prisma.user.create({
+        data: {
+            email,
+            name,
+            password: hashedPassword,
+        }
+    })
+
+    return {
+        status: "success",
+        message: "User registered successfully",
+    }
+}
 
 export async function createProject(formData: FormData) {
 
@@ -119,4 +160,40 @@ export async function createCustomerPortal() {
     })
 
     return portalSession.url
+}
+
+export async function loginWithGitHub() {
+    await signIn("github", { callbackUrl: "/dashboard" })
+}
+
+export async function loginWithCredentials(formData: FormData) {
+    try {
+        await signIn("credentials", {
+            email: formData.get("email") as string,
+            password: formData.get("password") as string,
+            redirect: false,
+        })
+
+        return {
+            status: "success",
+            message: "Logged in successfully",
+        }
+        
+    } catch (error) {
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case "CredentialsSignin":
+                    return {
+                        status: "error",
+                        message: "Invalid credentials",
+                    }
+                default:
+                    return {
+                        status: "error",
+                        message: "An unknown error occurred",
+                    }
+            }
+        }
+        throw error
+    }
 }
