@@ -6,6 +6,7 @@ import SignOut from "@/components/sign-out";
 import NewProjectBtn from "@/components/new-project-btn";
 import SubscriptionBtn from "@/components/subscription-btn";
 import { checkSubscription } from "@/lib/subscription";
+import { Project } from "@prisma/client";
 
 export default async function Dashbaord() {
   const session = await auth()
@@ -50,7 +51,7 @@ export default async function Dashbaord() {
         )}
 
         {/* Project Cards */}
-        {projects.map((project) => (
+        {projects.map((project: Project) => (
             <div key={project.id} className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
                 <h3 className="font-bold text-lg text-slate-800 mb-1">{project.name}</h3>
                 <p className="text-slate-500 text-sm mb-4 line-clamp-2">
