@@ -25,7 +25,7 @@ export default function RegisterPage() {
             toast.error(result.message)
         }
 
-        setIsLoading
+        setIsLoading(false)
     }
 
     return (

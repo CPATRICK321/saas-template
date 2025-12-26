@@ -2,79 +2,101 @@
 
 import { createProject } from "@/app/actions"
 import { useState } from "react"
-import { toast } from "react-hot-toast"
+import toast from "react-hot-toast"
+import { Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function NewProjectBtn() {
-    const [isOpen, setIsOpen] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault()
-        setIsLoading(true)
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsLoading(true)
+    
+    const formData = new FormData(event.currentTarget)
+    const result = await createProject(formData)
 
-        const formData = new FormData(event.currentTarget)
-
-        const result = await createProject(formData)
-
-        if (result?.status === "error") {
-            toast.error(result.message)
-        } else {
-            toast.success(result?.message)
-            setIsOpen(false)
-        }
-
-        setIsLoading(false)
+    if (result?.status === "error") {
+        toast.error(result.message)
+    } else {
+        toast.success(result.message)
+        setOpen(false)
     }
+    setIsLoading(false)
+  }
 
-    return (
-        <div>
-            {!isOpen && (
-                <button onClick={() => setIsOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
-                    + New Project
-                </button>
-            )}
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="gap-2 bg-slate-900 text-white hover:bg-slate-800">
+          <Plus className="h-4 w-4" />
+          New Project
+        </Button>
+      </DialogTrigger>
+      
+      {/* Content wrapper that handles the width and white background automatically */}
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Create Project</DialogTitle>
+          <DialogDescription>
+            Add a new project to your workspace.
+          </DialogDescription>
+        </DialogHeader>
 
-            {isOpen && (
-                <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg mt-2 max-w-md">
-                    <h3 className="font-bold mb-2 text-slate-800">Create Project</h3>
-                    
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                            <input 
-                                name="name" 
-                                placeholder="Project Name" 
-                                required 
-                                className="w-full border p-2 rounded text-slate-900" 
-                                autoFocus
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <textarea 
-                                name="description" 
-                                placeholder="Description (Optional)" 
-                                className="w-full border p-2 rounded text-slate-900" 
-                            />
-                        </div>
-                        
-                        <div className="flex gap-2">
-                            <button 
-                                type="submit" 
-                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
-                            >
-                                Save
-                            </button>
-                            <button 
-                                type="button" 
-                                onClick={() => setIsOpen(false)}
-                                className="bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 py-1 rounded text-sm"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-      )}
-        </div>
-    )
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            {/* Project Name Group */}
+            <div className="grid gap-2">
+              <Label htmlFor="name" className="text-left">
+                Project Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="e.g. Q4 Marketing Campaign"
+                required
+                className="col-span-3"
+              />
+            </div>
+            
+            {/* Description Group */}
+            <div className="grid gap-2">
+              <Label htmlFor="description" className="text-left">
+                Description <span className="text-slate-400 font-normal text-xs">(Optional)</span>
+              </Label>
+              <Textarea
+                id="description"
+                name="description"
+                placeholder="Brief description of your project..."
+                className="col-span-3"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            {/* Type="button" prevents form submission on Cancel */}
+            <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Creating..." : "Create Project"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
 }
