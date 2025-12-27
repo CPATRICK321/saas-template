@@ -8,7 +8,7 @@ export default async function Login() {
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold">Welcome Back</h1>
           <p className="text-sm text-slate-600">
-            Sign in to Project SaaS
+            Sign in to SaaS Platform Demo
           </p>
         </div>
 

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SaaS Project",
-  description: "A SaaS template built with Next.js, NextAuth, and Tailwind CSS.",
+  title: "SaaS Platform Demo",
+  description: "A SaaS demo built with Next.js, NextAuth, and Tailwind CSS.",
 };
 
 export default function RootLayout({

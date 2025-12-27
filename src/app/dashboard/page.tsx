@@ -42,7 +42,7 @@ export default async function Dashboard() {
                 <FolderOpen className="w-5 h-5 text-white" />
               </div>
               <span className="text-lg font-bold text-slate-900 tracking-tight">
-                SaaS Project
+                SaaS Platform Demo
               </span>
             </div>
             <div className="flex items-center gap-4">
