@@ -1,10 +1,11 @@
 "use client"
 
-import { registerUser } from "@/app/actions"
+import { registerUser, loginWithGitHub } from "@/app/actions"
 import { useState } from "react"
 import { toast } from "react-hot-toast"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false)
@@ -54,6 +55,25 @@ export default function RegisterPage() {
                     >
                         {isLoading ? "Creating..." : "Sign Up"}
                     </button>
+                </form>
+
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-white px-2 text-slate-500">Or continue with</span>
+                    </div>
+                </div>
+
+                <form
+                    action={async () => {
+                        await loginWithGitHub()
+                    }}
+                >
+                    <Button variant="outline" type="submit" className="w-full">
+                        Sign up with GitHub
+                    </Button>
                 </form>
 
                 <p className="text-center text-sm text-slate-600">
