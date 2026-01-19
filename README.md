@@ -28,7 +28,7 @@ A modern, full-stack SaaS starter built with **Next.js 16 (App Router)**. This p
 ### 1. Clone the repository
 
 ```bash
-git clone [https://github.com/yourusername/saas-template.git](https://github.com/yourusername/saas-template.git)
+git clone [https://github.com/cpatrick321/saas-template.git](https://github.com/cpatrick321/saas-template.git)
 cd saas-template
 ```
 
